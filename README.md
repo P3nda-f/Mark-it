@@ -1,1 +1,693 @@
 # Mark-it
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusWay — Howard University</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080e0a;
+    --surface: #0f1a12;
+    --surface2: #162019;
+    --border: #1f3024;
+    --accent: #22c55e;
+    --accent-dim: rgba(34,197,94,0.12);
+    --accent2: #16803a;
+    --crimson: #A51C30;
+    --navy: #002147;
+    --gold: #f0b429;
+    --text: #e8f5ec;
+    --muted: #6b8a72;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --success: #22c55e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 28px; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 8px; }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.3rem; display: flex; align-items: center; gap: 8px; }
+  .logo-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .nav-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+  .nav-tab { padding: 6px 13px; border-radius: 20px; border: none; background: transparent; color: var(--muted); cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; transition: all 0.2s; }
+  .nav-tab.active { background: var(--accent); color: #050e07; font-weight: 600; }
+  .nav-tab:hover:not(.active) { background: var(--surface2); color: var(--text); }
+  .nav-right { display: flex; align-items: center; gap: 10px; }
+  .user-badge { background: var(--navy); color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.78rem; font-weight: 500; border: 1px solid rgba(165,28,48,0.4); }
+  .admin-badge { background: var(--gold); color: #1a1000; padding: 4px 12px; border-radius: 12px; font-size: 0.78rem; font-weight: 500; }
+  .emg-btn { width: 34px; height: 34px; border-radius: 10px; background: rgba(165,28,48,0.2); border: 1px solid rgba(165,28,48,0.4); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; }
+
+  .screen { display: none; padding: 28px; animation: fadeIn 0.3s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* OVERVIEW */
+  .hero { text-align: center; padding: 48px 20px 36px; }
+  .hero-badge { display: inline-block; background: var(--accent-dim); border: 1px solid var(--accent); color: var(--accent); padding: 4px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; margin-bottom: 16px; letter-spacing: 0.05em; }
+  .hero h1 { font-family: 'Syne', sans-serif; font-size: 2.8rem; font-weight: 800; line-height: 1.1; }
+  .hero h1 span { color: var(--accent); }
+  .hero p { color: var(--muted); margin: 14px auto 0; max-width: 480px; line-height: 1.6; }
+  .stats-row { display: flex; gap: 16px; justify-content: center; margin: 36px 0; flex-wrap: wrap; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px 28px; text-align: center; min-width: 130px; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--accent); }
+  .stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; max-width: 1000px; margin: 0 auto; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 22px; }
+  .card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+  .card p { font-size: 0.84rem; color: var(--muted); line-height: 1.55; }
+  .card-icon { font-size: 1.8rem; margin-bottom: 12px; }
+  .card.accent-card { border-color: var(--accent); background: var(--accent-dim); }
+
+  /* MAP */
+  .map-layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; height: calc(100vh - 145px); }
+  .map-sidebar { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; }
+  .sidebar-header { padding: 18px; border-bottom: 1px solid var(--border); }
+  .sidebar-header h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 10px; }
+  .search-box { display: flex; align-items: center; gap: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; }
+  .search-box input { background: none; border: none; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.88rem; flex: 1; outline: none; }
+  .search-box input::placeholder { color: var(--muted); }
+  .filter-row { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+  .filter-chip { padding: 3px 9px; border-radius: 12px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 0.73rem; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+  .filter-chip.on { background: var(--accent); border-color: var(--accent); color: #050e07; font-weight: 600; }
+  .room-list { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 7px; }
+  .room-list::-webkit-scrollbar { width: 3px; }
+  .room-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .room-item { background: var(--bg); border: 1px solid var(--border); border-radius: 11px; padding: 11px 13px; cursor: pointer; transition: all 0.2s; }
+  .room-item:hover { border-color: var(--accent); }
+  .room-item.selected { border-color: var(--accent); background: var(--accent-dim); }
+  .room-name { font-weight: 500; font-size: 0.86rem; }
+  .room-meta { font-size: 0.73rem; color: var(--muted); margin-top: 3px; display: flex; gap: 8px; }
+  .dot-busy { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 3px; }
+  .busy-high { background: var(--crimson); }
+  .busy-med { background: var(--warn); }
+  .busy-low { background: var(--accent); }
+  .map-area { background: var(--navy); border: 1px solid rgba(165,28,48,0.35); border-radius: 16px; position: relative; overflow: hidden; }
+  .campus-map { position: relative; width: 100%; height: 100%; }
+  .map-controls { position: absolute; top: 14px; right: 14px; display: flex; flex-direction: column; gap: 5px; }
+  .map-btn { width: 34px; height: 34px; border-radius: 10px; background: rgba(0,33,71,0.9); border: 1px solid rgba(255,255,255,0.12); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.95rem; transition: all 0.2s; }
+  .map-btn:hover { background: var(--crimson); }
+  .route-info { position: absolute; bottom: 14px; left: 14px; right: 14px; background: rgba(0,17,40,0.92); border: 1px solid rgba(165,28,48,0.5); border-radius: 12px; padding: 13px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; backdrop-filter: blur(8px); }
+  .route-info h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; }
+  .go-btn { background: var(--crimson); border: none; color: white; padding: 8px 18px; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 700; cursor: pointer; font-size: 0.86rem; white-space: nowrap; }
+  .voice-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); color: var(--text); padding: 8px 12px; border-radius: 10px; cursor: pointer; font-size: 1rem; transition: all 0.2s; }
+  .voice-btn:hover { background: var(--accent2); }
+
+  /* REPORT MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 26px; width: 370px; animation: fadeIn 0.2s ease; }
+  .modal h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 14px; }
+  .report-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .report-opt { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; cursor: pointer; font-size: 0.82rem; text-align: center; transition: all 0.2s; }
+  .report-opt:hover, .report-opt.sel { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+  .modal-actions { display: flex; gap: 8px; margin-top: 8px; }
+  .btn-primary { flex: 1; background: var(--accent); border: none; color: #050e07; padding: 10px; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 700; cursor: pointer; }
+  .btn-secondary { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); padding: 10px 16px; border-radius: 10px; cursor: pointer; }
+
+  /* BOOKING */
+  .booking-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .booking-calendar { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+  .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .cal-header h3 { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; }
+  .cal-nav { background: none; border: 1px solid var(--border); color: var(--text); width: 28px; height: 28px; border-radius: 8px; cursor: pointer; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-day-label { text-align: center; font-size: 0.7rem; color: var(--muted); padding: 4px 0; }
+  .cal-day { text-align: center; padding: 6px 4px; border-radius: 8px; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; }
+  .cal-day:hover { background: var(--surface2); }
+  .cal-day.today { background: var(--navy); color: white; font-weight: 600; border: 1px solid var(--crimson); }
+  .cal-day.selected { background: var(--accent); color: #050e07; font-weight: 600; }
+  .cal-day.has-booking { position: relative; }
+  .cal-day.has-booking::after { content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background: var(--gold); }
+  .time-slots { margin-top: 14px; }
+  .time-slots h4 { font-size: 0.82rem; color: var(--muted); margin-bottom: 8px; }
+  .slots-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .slot { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 7px; text-align: center; font-size: 0.78rem; cursor: pointer; transition: all 0.2s; }
+  .slot:hover:not(.taken) { border-color: var(--accent); }
+  .slot.taken { opacity: 0.35; cursor: not-allowed; text-decoration: line-through; }
+  .slot.picked { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+  .booking-form { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .booking-form h3 { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; }
+  .form-group label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 5px; }
+  .form-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 9px 13px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; }
+  .form-input:focus { border-color: var(--accent); }
+  .invite-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .invite-chip { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 5px; }
+
+  /* VOLUNTEER */
+  .vol-layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; }
+  .vol-sidebar { display: flex; flex-direction: column; gap: 14px; }
+  .interest-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; }
+  .interest-panel h3 { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; margin-bottom: 10px; }
+  .interest-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .int-tag { padding: 5px 11px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg); color: var(--muted); font-size: 0.77rem; cursor: pointer; transition: all 0.2s; }
+  .int-tag.active { background: var(--accent); border-color: var(--accent); color: #050e07; font-weight: 600; }
+  .vol-main { display: flex; flex-direction: column; gap: 16px; }
+  .vol-map-preview { background: var(--navy); border: 1px solid rgba(165,28,48,0.4); border-radius: 16px; height: 210px; position: relative; overflow: hidden; }
+  .vol-orgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 14px; }
+  .vol-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; transition: border-color 0.2s; cursor: default; }
+  .vol-card:hover { border-color: rgba(34,197,94,0.4); }
+  .vol-card.recommended { border-color: var(--accent); background: var(--accent-dim); }
+  .vol-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
+  .vol-name { font-family: 'Syne', sans-serif; font-size: 0.92rem; font-weight: 700; }
+  .vol-dist { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+  .rec-badge { background: var(--accent); color: #050e07; font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; }
+  .vol-tags { display: flex; gap: 5px; flex-wrap: wrap; margin: 7px 0; }
+  .vol-tag { font-size: 0.7rem; padding: 2px 7px; border-radius: 10px; background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+  .vol-desc { font-size: 0.79rem; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
+  .vol-footer { display: flex; align-items: center; justify-content: space-between; }
+  .vol-spots { font-size: 0.74rem; color: var(--muted); }
+  .vol-btn { background: var(--accent); border: none; color: #050e07; padding: 6px 13px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; font-family: 'Syne', sans-serif; }
+  .vol-btn:hover { background: var(--accent2); color: white; }
+  .vol-btn.secondary { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+  .match-bar { height: 4px; border-radius: 2px; background: var(--border); overflow: hidden; margin-top: 3px; }
+  .match-fill { height: 100%; background: var(--accent); border-radius: 2px; }
+
+  /* ADMIN */
+  .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 22px; }
+  .admin-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+  .admin-stat-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .admin-stat h4 { font-size: 0.78rem; color: var(--muted); margin-bottom: 5px; }
+  .admin-stat .num { font-family: 'Syne', sans-serif; font-size: 1.7rem; font-weight: 800; }
+  .admin-stat .change { font-size: 0.74rem; color: var(--success); }
+  .admin-stat .change.neg { color: var(--danger); }
+  .admin-icon { font-size: 1.3rem; }
+  .admin-section { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 14px; }
+  .admin-section h3 { font-family: 'Syne', sans-serif; font-size: 0.92rem; font-weight: 700; margin-bottom: 12px; }
+  .user-row { display: flex; align-items: center; gap: 11px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .user-row:last-child { border: none; }
+  .avatar { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; color: white; flex-shrink: 0; }
+  .user-info { flex: 1; }
+  .user-name { font-size: 0.86rem; font-weight: 500; }
+  .user-role { font-size: 0.73rem; color: var(--muted); }
+  .tier-badge { font-size: 0.71rem; padding: 2px 9px; border-radius: 8px; font-weight: 500; white-space: nowrap; }
+  .tier-1 { background: rgba(240,180,41,0.2); color: var(--gold); border: 1px solid var(--gold); }
+  .tier-2 { background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid #3b82f6; }
+  .tier-3 { background: rgba(34,197,94,0.2); color: #4ade80; border: 1px solid #22c55e; }
+  .tier-4 { background: rgba(107,138,114,0.2); color: var(--muted); border: 1px solid var(--border); }
+  .alert-row { display: flex; gap: 11px; padding: 9px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+  .alert-row:last-child { border: none; }
+  .alert-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .alert-text { font-size: 0.83rem; }
+  .alert-time { font-size: 0.71rem; color: var(--muted); margin-top: 2px; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .toggle-row:last-child { border: none; }
+  .toggle { width: 40px; height: 22px; border-radius: 11px; cursor: pointer; position: relative; transition: background 0.2s; border: none; flex-shrink: 0; }
+  .toggle.on { background: var(--accent); }
+  .toggle.off { background: var(--border); }
+  .toggle::after { content: ''; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: white; top: 3px; transition: left 0.2s; }
+  .toggle.on::after { left: 21px; }
+  .toggle.off::after { left: 3px; }
+
+  /* MISSION */
+  .section-label { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 6px; }
+  .pillar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-top: 22px; }
+  .pillar { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+  .pillar.gold-border { border-color: var(--gold); }
+  .pillar-icon { font-size: 1.5rem; margin-bottom: 9px; }
+  .pillar h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; margin-bottom: 5px; }
+  .pillar p { font-size: 0.79rem; color: var(--muted); line-height: 1.5; }
+
+  /* EMERGENCY */
+  .emergency-bar { display: none; position: fixed; top: 60px; left: 0; right: 0; background: var(--crimson); color: white; padding: 10px 24px; text-align: center; font-weight: 600; font-size: 0.88rem; z-index: 99; }
+  .emergency-bar.show { display: block; animation: pulse-bar 1.5s ease-in-out infinite; }
+  @keyframes pulse-bar { 0%,100%{opacity:1}50%{opacity:.85} }
+  @keyframes dash { to { stroke-dashoffset: -24; } }
+
+  @media (max-width: 800px) {
+    .map-layout, .booking-layout, .vol-layout { grid-template-columns: 1fr; }
+    .map-layout { height: auto; }
+    .map-area { height: 320px; }
+    .vol-map-preview { height: 160px; }
+    .hero h1 { font-size: 1.9rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="emergency-bar" id="emergencyBar">
+  🚨 EMERGENCY — Evacuation active. Avoid Cramton East Wing. AI rerouting enabled. <a href="#" style="color:white;margin-left:12px;text-decoration:underline" onclick="toggleEmergency();return false;">Dismiss</a>
+</div>
+
+<nav>
+  <div class="logo"><div class="logo-dot"></div>CampusWay</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showScreen('overview',this)">Overview</button>
+    <button class="nav-tab" onclick="showScreen('map',this)">🗺 Map</button>
+    <button class="nav-tab" onclick="showScreen('booking',this)">📅 Booking</button>
+    <button class="nav-tab" onclick="showScreen('volunteer',this)">🤲 Volunteer</button>
+    <button class="nav-tab" onclick="showScreen('admin',this)">⚙️ Admin</button>
+    <button class="nav-tab" onclick="showScreen('mission',this)">🎓 Mission</button>
+  </div>
+  <div class="nav-right">
+    <span class="user-badge">Jordan M. · Student</span>
+    <div class="emg-btn" onclick="toggleEmergency()" title="Demo emergency alert">🚨</div>
+  </div>
+</nav>
+
+<!-- OVERVIEW -->
+<div class="screen active" id="screen-overview">
+  <div class="hero">
+    <div class="hero-badge">PROTOTYPE · HOWARD UNIVERSITY · D.C.</div>
+    <h1>Navigate your campus<br><span>without the stress.</span></h1>
+    <p>CampusWay gives every student, employee, and guest precise indoor directions — with voice guidance, safety alerts, room booking, and volunteer opportunities.</p>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num">200+</div><div class="stat-label">Buildings Mapped</div></div>
+    <div class="stat-card"><div class="stat-num">4,500+</div><div class="stat-label">Rooms Indexed</div></div>
+    <div class="stat-card"><div class="stat-num">10K+</div><div class="stat-label">Daily Users</div></div>
+    <div class="stat-card"><div class="stat-num">60+</div><div class="stat-label">Volunteer Orgs</div></div>
+  </div>
+  <div class="cards-grid">
+    <div class="card accent-card"><div class="card-icon">🎙️</div><h3>AI Voice Guidance</h3><p>Turn-by-turn voice directions to any room. Fully accessible for users with visual impairments.</p></div>
+    <div class="card"><div class="card-icon">🔐</div><h3>Tiered Access</h3><p>Admins set permission tiers — deans see everything, interns see authorized areas. MFA login via school ID.</p></div>
+    <div class="card"><div class="card-icon">🚨</div><h3>AI Emergency Routing</h3><p>Hazard reports trigger real-time rerouting that dynamically avoids danger zones.</p></div>
+    <div class="card accent-card"><div class="card-icon">🤲</div><h3>Volunteer Finder</h3><p>Discover nearby orgs matched to your interests. Get directions, sign up, and log hours — all in one place.</p></div>
+    <div class="card"><div class="card-icon">📅</div><h3>Room Booking</h3><p>Reserve rooms and invite teammates. They automatically receive directions when invited.</p></div>
+    <div class="card"><div class="card-icon">⚠️</div><h3>Community Reports</h3><p>Report locked doors, wet floors, hazards. Reports feed directly into routing logic.</p></div>
+  </div>
+</div>
+
+<!-- MAP -->
+<div class="screen" id="screen-map">
+  <div class="map-layout">
+    <div class="map-sidebar">
+      <div class="sidebar-header">
+        <h3>Find a Room</h3>
+        <div class="search-box"><span>🔍</span><input type="text" placeholder="Room, building, office..." oninput="filterRooms(this.value)"/></div>
+        <div class="filter-row">
+          <button class="filter-chip on" onclick="toggleChip(this)">All</button>
+          <button class="filter-chip" onclick="toggleChip(this)">Classroom</button>
+          <button class="filter-chip" onclick="toggleChip(this)">Office</button>
+          <button class="filter-chip" onclick="toggleChip(this)">Lab</button>
+          <button class="filter-chip" onclick="toggleChip(this)">Food</button>
+        </div>
+      </div>
+      <div class="room-list" id="roomList"></div>
+    </div>
+    <div class="map-area">
+      <div class="campus-map" id="campusMap"></div>
+      <div class="map-controls">
+        <div class="map-btn">+</div><div class="map-btn">−</div>
+        <div class="map-btn">📍</div><div class="map-btn">⊞</div>
+      </div>
+      <div class="route-info">
+        <div>
+          <h4 id="routeDest">Select a room to get directions</h4>
+          <p id="routeMeta" style="color:var(--muted);font-size:0.76rem;margin-top:2px">Howard University · Washington D.C.</p>
+        </div>
+        <div style="display:flex;gap:7px;align-items:center">
+          <button class="voice-btn" onclick="speak()">🎙️</button>
+          <div class="map-btn" onclick="openReport()">🚩</div>
+          <button class="go-btn" onclick="startNav()">Go →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING -->
+<div class="screen" id="screen-booking">
+  <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:20px">Room Booking</h2>
+  <div class="booking-layout">
+    <div class="booking-calendar">
+      <div class="cal-header"><button class="cal-nav">‹</button><h3>February 2026</h3><button class="cal-nav">›</button></div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="time-slots"><h4>Slots for <span id="selectedDate">Feb 21</span></h4><div class="slots-grid" id="slotsGrid"></div></div>
+    </div>
+    <div class="booking-form">
+      <h3>New Booking</h3>
+      <div class="form-group"><label>Room</label>
+        <select class="form-input"><option>Founder's Library — Study Room B</option><option>Locke Hall 201 — Seminar Room</option><option>Frederick Douglass Hall 310 — Conference</option><option>Howard Center — Meeting Pod 4</option></select>
+      </div>
+      <div class="form-group"><label>Date & Time</label><input type="text" class="form-input" value="Feb 21, 2026 · 2:00 PM – 3:00 PM" readonly></div>
+      <div class="form-group"><label>Purpose</label><input type="text" class="form-input" placeholder="Study session, team meeting..."></div>
+      <div class="form-group"><label>Invite Members</label><input type="text" class="form-input" placeholder="Name or HU email...">
+        <div class="invite-chips"><div class="invite-chip">Alex T. <span>×</span></div><div class="invite-chip">Maya R. <span>×</span></div><div class="invite-chip">Chris L. <span>×</span></div></div>
+      </div>
+      <div class="form-group"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" checked> Send directions to all invitees automatically</label></div>
+      <button class="btn-primary" onclick="alert('✅ Room booked! Invitations sent with directions.')">Confirm Booking</button>
+      <p style="font-size:0.74rem;color:var(--muted);text-align:center">Tier access determines which rooms appear for you.</p>
+    </div>
+  </div>
+</div>
+
+<!-- VOLUNTEER -->
+<div class="screen" id="screen-volunteer">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+    <div>
+      <div class="section-label">Community Service</div>
+      <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">Volunteer Finder</h2>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="vol-btn secondary" onclick="alert('Showing all orgs within 3 miles of Howard University')">📍 Near Me</button>
+      <button class="vol-btn" onclick="refreshRecs()">✨ Refresh Matches</button>
+    </div>
+  </div>
+  <div class="vol-layout">
+    <div class="vol-sidebar">
+      <div class="interest-panel">
+        <h3>Your Interests</h3>
+        <p style="font-size:0.77rem;color:var(--muted);margin-bottom:10px">Toggle topics to get personalized matches</p>
+        <div class="interest-tags" id="interestTags">
+          <div class="int-tag active" onclick="toggleInterest(this)">Education</div>
+          <div class="int-tag active" onclick="toggleInterest(this)">Youth</div>
+          <div class="int-tag" onclick="toggleInterest(this)">Health</div>
+          <div class="int-tag" onclick="toggleInterest(this)">Environment</div>
+          <div class="int-tag active" onclick="toggleInterest(this)">Social Justice</div>
+          <div class="int-tag" onclick="toggleInterest(this)">Arts & Culture</div>
+          <div class="int-tag" onclick="toggleInterest(this)">Food Security</div>
+          <div class="int-tag" onclick="toggleInterest(this)">Housing</div>
+          <div class="int-tag" onclick="toggleInterest(this)">Tech Access</div>
+          <div class="int-tag active" onclick="toggleInterest(this)">Mentorship</div>
+          <div class="int-tag" onclick="toggleInterest(this)">Sports & Rec</div>
+          <div class="int-tag" onclick="toggleInterest(this)">Elderly Care</div>
+        </div>
+      </div>
+      <div class="interest-panel">
+        <h3>Your Impact</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:0.79rem;margin-bottom:3px"><span>Hours Logged</span><span style="color:var(--accent);font-weight:600">12 hrs</span></div>
+            <div class="match-bar"><div class="match-fill" style="width:30%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:0.79rem;margin-bottom:3px"><span>Orgs Joined</span><span style="color:var(--accent);font-weight:600">2</span></div>
+            <div class="match-bar"><div class="match-fill" style="width:20%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:0.79rem;margin-bottom:3px"><span>Semester goal: 40 hrs</span><span style="color:var(--gold);font-weight:600">30%</span></div>
+            <div class="match-bar"><div class="match-fill" style="width:30%;background:var(--gold)"></div></div>
+          </div>
+        </div>
+        <p style="font-size:0.73rem;color:var(--muted);margin-top:10px">Hours auto-logged when you check in via CampusWay at the org's location.</p>
+      </div>
+    </div>
+    <div class="vol-main">
+      <div class="vol-map-preview" id="volMapPreview"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <p style="font-size:0.84rem;color:var(--muted)"><span id="volCount">6</span> opportunities near Howard · <span style="color:var(--accent)" id="matchCount">4 match your interests</span></p>
+        <select class="form-input" style="width:auto;font-size:0.78rem;padding:5px 10px" onchange="sortOrgs(this.value)">
+          <option value="match">Sort: Best Match</option>
+          <option value="distance">Sort: Distance</option>
+          <option value="spots">Sort: Spots Available</option>
+        </select>
+      </div>
+      <div class="vol-orgs" id="volOrgs"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="screen" id="screen-admin">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">Admin Dashboard</h2>
+    <span class="admin-badge">Dean-level Access</span>
+  </div>
+  <div class="admin-grid">
+    <div class="admin-stat"><div class="admin-stat-top"><h4>Active Users Now</h4><div class="admin-icon">👥</div></div><div class="num">1,247</div><div class="change">↑ 12% from yesterday</div></div>
+    <div class="admin-stat"><div class="admin-stat-top"><h4>Reports Today</h4><div class="admin-icon">🚩</div></div><div class="num">8</div><div class="change neg">3 unresolved</div></div>
+    <div class="admin-stat"><div class="admin-stat-top"><h4>Rooms Booked</h4><div class="admin-icon">📅</div></div><div class="num">34</div><div class="change">↑ 5 from last Sat</div></div>
+    <div class="admin-stat"><div class="admin-stat-top"><h4>Volunteer Signups</h4><div class="admin-icon">🤲</div></div><div class="num">47</div><div class="change">This week via CampusWay</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="admin-section">
+      <h3>👤 User Access Tiers</h3>
+      <div class="user-row"><div class="avatar" style="background:#8b5cf6">PW</div><div class="user-info"><div class="user-name">President Wayne A.J. Frederick</div><div class="user-role">University President</div></div><span class="tier-badge tier-1">Tier 1 · All Access</span></div>
+      <div class="user-row"><div class="avatar" style="background:var(--navy)">DM</div><div class="user-info"><div class="user-name">Dean Marcus T.</div><div class="user-role">College of Arts & Sciences</div></div><span class="tier-badge tier-1">Tier 1 · All Access</span></div>
+      <div class="user-row"><div class="avatar" style="background:#0891b2">LS</div><div class="user-info"><div class="user-name">Supervisor Linda S.</div><div class="user-role">Facilities Manager</div></div><span class="tier-badge tier-2">Tier 2 · Manager</span></div>
+      <div class="user-row"><div class="avatar" style="background:var(--accent2)">JM</div><div class="user-info"><div class="user-name">Jordan M.</div><div class="user-role">Student · Junior</div></div><span class="tier-badge tier-3">Tier 3 · Student</span></div>
+      <div class="user-row"><div class="avatar" style="background:var(--border)">GU</div><div class="user-info"><div class="user-name">Guest User</div><div class="user-role">Visitor · Expires Feb 22</div></div><span class="tier-badge tier-4">Tier 4 · Guest</span></div>
+    </div>
+    <div>
+      <div class="admin-section">
+        <h3>🚩 Recent Reports</h3>
+        <div class="alert-row"><div class="alert-dot" style="background:var(--crimson)"></div><div><div class="alert-text">Locked door — Cramton Auditorium, East Wing B2</div><div class="alert-time">12 min ago · Rerouting active</div></div></div>
+        <div class="alert-row"><div class="alert-dot" style="background:var(--warn)"></div><div><div class="alert-text">Wet floor — Founder's Library, 2nd floor</div><div class="alert-time">38 min ago · Cleaning dispatched</div></div></div>
+        <div class="alert-row"><div class="alert-dot" style="background:var(--accent)"></div><div><div class="alert-text">Broken elevator — Burr Gymnasium</div><div class="alert-time">2 hrs ago · Resolved</div></div></div>
+      </div>
+      <div class="admin-section">
+        <h3>⚙️ Settings</h3>
+        <div class="toggle-row"><div><div style="font-size:0.84rem">Admin location tracking</div><div style="font-size:0.73rem;color:var(--muted)">Aggregate density only</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
+        <div class="toggle-row"><div><div style="font-size:0.84rem">Emergency AI routing</div><div style="font-size:0.73rem;color:var(--muted)">Auto-reroute on verified hazards</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
+        <div class="toggle-row"><div><div style="font-size:0.84rem">Volunteer org listings</div><div style="font-size:0.73rem;color:var(--muted)">Show community orgs in Volunteer tab</div></div><button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
+        <div class="toggle-row"><div><div style="font-size:0.84rem">Cleaning service integration</div><div style="font-size:0.73rem;color:var(--muted)">Auto-dispatch on floor hazard reports</div></div><button class="toggle off" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MISSION -->
+<div class="screen" id="screen-mission">
+  <div style="max-width:740px;margin:0 auto">
+    <div class="section-label">Truth & Service · Veritas et Utilitas</div>
+    <h2 style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;line-height:1.2">How CampusWay serves Howard's mission</h2>
+    <p style="color:var(--muted);margin-top:12px;line-height:1.7">Howard University's motto — Truth and Service — is the philosophical foundation of CampusWay. Built not just as navigation, but as equity infrastructure for campuses and institutions.</p>
+    <div class="pillar-grid">
+      <div class="pillar gold-border"><div class="pillar-icon">🔍</div><h4>Transparency</h4><p>No secret tracking. Users see exactly what data is collected. Admin views are aggregate-only with clear consent flows.</p></div>
+      <div class="pillar"><div class="pillar-icon">⚖️</div><h4>Equity</h4><p>Voice navigation ensures students with disabilities have equal access. Free tier for students means cost is never a barrier.</p></div>
+      <div class="pillar"><div class="pillar-icon">🌐</div><h4>Access</h4><p>Works on any device. First-gen students and visitors get the same experience from day one.</p></div>
+      <div class="pillar"><div class="pillar-icon">🤝</div><h4>Community</h4><p>Hazard reports, emergency routing, cleaning dispatch, and volunteer matching all reduce harm and strengthen community.</p></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;margin-top:22px">
+      <div class="section-label">Ethical Considerations</div>
+      <h3 style="font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:700;margin-bottom:12px">How we address concerns proactively</h3>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:11px;font-size:0.84rem"><span style="color:var(--gold);flex-shrink:0">⚠</span><div><strong>Location surveillance:</strong> Admin view shows crowd density heatmaps only. No individual paths logged. Users can disable tracking anytime.</div></div>
+        <div style="display:flex;gap:11px;font-size:0.84rem"><span style="color:var(--gold);flex-shrink:0">⚠</span><div><strong>Data equity:</strong> CampusWay never sells user data. Monetization is through institutional licensing only.</div></div>
+        <div style="display:flex;gap:11px;font-size:0.84rem"><span style="color:var(--gold);flex-shrink:0">⚠</span><div><strong>AI bias in routing:</strong> Emergency AI trains on building data, not demographic data. All users receive equal-quality evacuation routing.</div></div>
+        <div style="display:flex;gap:11px;font-size:0.84rem"><span style="color:var(--gold);flex-shrink:0">⚠</span><div><strong>Volunteer data:</strong> Interest profiles never sold. Matching runs to improve recommendations only — not for advertising.</div></div>
+      </div>
+    </div>
+    <div style="background:rgba(34,197,94,0.07);border:1px solid var(--accent);border-radius:16px;padding:22px;margin-top:16px">
+      <h3 style="font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:700;margin-bottom:8px">📋 Executive Summary</h3>
+      <p style="font-size:0.84rem;color:var(--muted);line-height:1.6">CampusWay is a B2B indoor navigation platform sold to universities and companies on 6-year contracts with a 1-year cancellation window. Starting with Howard University as our flagship HBCU partner, we demonstrate that AI-powered navigation can reduce campus inequities, lower student stress, improve safety, and connect students to volunteer opportunities. Phase 1: 10 HBCU campuses. Phase 2: corporate campuses. Revenue is recurring SaaS; add-ons (booking, cleaning, volunteering, location sharing) sold modularly.</p>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT MODAL -->
+<div class="modal-overlay" id="reportModal">
+  <div class="modal">
+    <h3>🚩 Report an Issue</h3>
+    <p style="font-size:0.81rem;color:var(--muted);margin-bottom:14px">Your report helps keep routes safe for everyone.</p>
+    <div class="report-options">
+      <div class="report-opt" onclick="selectReport(this)">🔒 Locked Door</div>
+      <div class="report-opt" onclick="selectReport(this)">💧 Wet Floor</div>
+      <div class="report-opt" onclick="selectReport(this)">🔥 Fire/Smoke</div>
+      <div class="report-opt" onclick="selectReport(this)">⛔ Blocked Exit</div>
+      <div class="report-opt" onclick="selectReport(this)">💡 Lights Out</div>
+      <div class="report-opt" onclick="selectReport(this)">🪜 Other Hazard</div>
+    </div>
+    <textarea class="form-input" placeholder="Additional details (optional)..." rows="3" style="resize:none;margin-bottom:4px"></textarea>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeReport()">Cancel</button>
+      <button class="btn-primary" onclick="submitReport()">Submit Report</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ROOMS
+const rooms = [
+  { name: "Founder's Library — Study Room B", building: "Founder's Library", floor: "Floor 2", type: "Classroom", busy: "low", x: 45, y: 40 },
+  { name: "Locke Hall 201 — Seminar Room", building: "Locke Hall", floor: "Floor 2", type: "Classroom", busy: "high", x: 60, y: 55 },
+  { name: "Frederick Douglass Hall 310", building: "Douglass Hall", floor: "Floor 3", type: "Office", busy: "med", x: 35, y: 62 },
+  { name: "Howard Center — Meeting Pod 4", building: "Howard Center", floor: "Floor 1", type: "Office", busy: "low", x: 70, y: 35 },
+  { name: "Cramton Auditorium — Main Hall", building: "Cramton", floor: "Floor 1", type: "Classroom", busy: "high", x: 52, y: 70 },
+  { name: "Chem Building — Lab 102", building: "Chemistry Building", floor: "Floor 1", type: "Lab", busy: "med", x: 30, y: 48 },
+  { name: "Punch Out Food Court", building: "Howard Center", floor: "Floor 1", type: "Food", busy: "high", x: 68, y: 55 },
+  { name: "Burr Gymnasium — Main Court", building: "Burr Gymnasium", floor: "Floor 1", type: "Classroom", busy: "low", x: 80, y: 65 },
+];
+let selectedRoom = null;
+
+function renderRooms(list) {
+  const el = document.getElementById('roomList'); if(!el) return;
+  el.innerHTML = (list||rooms).map(r => {
+    const i = rooms.indexOf(r);
+    return `<div class="room-item${selectedRoom===i?' selected':''}" onclick="selectRoom(${i})">
+      <div class="room-name">${r.name}</div>
+      <div class="room-meta"><span><span class="dot-busy busy-${r.busy}"></span>${r.busy==='high'?'Busy':r.busy==='med'?'Moderate':'Quiet'}</span><span>${r.building}</span><span>${r.floor}</span></div>
+    </div>`;
+  }).join('');
+}
+function filterRooms(q){renderRooms(rooms.filter(r=>r.name.toLowerCase().includes(q.toLowerCase())||r.building.toLowerCase().includes(q.toLowerCase())));}
+function selectRoom(i){selectedRoom=i;renderRooms();const r=rooms[i];document.getElementById('routeDest').textContent=r.name;document.getElementById('routeMeta').textContent=`${r.building} · ${r.floor} · ${r.busy==='high'?'🔴 Busy':r.busy==='med'?'🟡 Moderate':'🟢 Quiet'}`;drawCampusMap(i);}
+
+// NAVY + CRIMSON CAMPUS MAP
+const bldgs = [
+  {x:10,y:15,w:25,h:18,label:["Founder's","Library"]},
+  {x:40,y:12,w:22,h:16,label:["Locke","Hall"]},
+  {x:67,y:10,w:26,h:18,label:["Howard","Center"]},
+  {x:10,y:45,w:20,h:16,label:["Chem","Building"]},
+  {x:35,y:48,w:24,h:18,label:["Douglass","Hall"]},
+  {x:64,y:47,w:22,h:16,label:["Punch Out","Food"]},
+  {x:20,y:72,w:28,h:16,label:["Cramton","Auditorium"]},
+  {x:65,y:68,w:26,h:16,label:["Burr","Gym"]},
+];
+function drawCampusMap(dest){
+  const c=document.getElementById('campusMap'); if(!c)return;
+  const r=rooms[dest], W=c.clientWidth||800, H=c.clientHeight||480;
+  const sc=(v,max)=>(v/100)*(max-60)+30;
+  const dx=sc(r.x,W),dy=sc(r.y,H),sx=sc(55,W),sy=sc(28,H),mx=(dx+sx)/2;
+  const bs=bldgs.map(b=>{
+    const px=sc(b.x,W),py=sc(b.y,H),pw=(b.w/100)*W,ph=(b.h/100)*H;
+    const isT=Math.abs(b.x-r.x)<15&&Math.abs(b.y-r.y)<15;
+    return `<rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="5"
+      fill="${isT?'rgba(165,28,48,0.55)':'rgba(0,33,71,0.88)'}"
+      stroke="${isT?'#A51C30':'rgba(165,28,48,0.22)'}" stroke-width="${isT?2:1}"/>
+    ${isT?`<rect x="${px}" y="${py}" width="${pw}" height="3" fill="#A51C30" rx="1"/>`:``}
+    <text x="${px+pw/2}" y="${py+ph/2-4}" text-anchor="middle" fill="${isT?'#ffd0d5':'#5d8ab5'}" font-size="10" font-family="DM Sans,sans-serif" font-weight="${isT?700:400}">${b.label[0]}</text>
+    <text x="${px+pw/2}" y="${py+ph/2+10}" text-anchor="middle" fill="${isT?'#ffd0d5':'#5d8ab5'}" font-size="10" font-family="DM Sans,sans-serif">${b.label[1]}</text>`;
+  }).join('');
+  const paths=`<line x1="${sc(10,W)}" y1="${sc(33,H)}" x2="${sc(95,W)}" y2="${sc(33,H)}" stroke="rgba(255,255,255,0.05)" stroke-width="7"/>
+    <line x1="${sc(10,W)}" y1="${sc(64,H)}" x2="${sc(95,W)}" y2="${sc(64,H)}" stroke="rgba(255,255,255,0.05)" stroke-width="7"/>
+    <line x1="${sc(50,W)}" y1="${sc(8,H)}" x2="${sc(50,W)}" y2="${sc(88,H)}" stroke="rgba(255,255,255,0.05)" stroke-width="7"/>`;
+  c.innerHTML=`<svg width="100%" height="100%" style="position:absolute;top:0;left:0;background:#001020;">
+    <defs>
+      <pattern id="d" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.7" fill="rgba(255,255,255,0.035)"/></pattern>
+      <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#A51C30"/></marker>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#d)"/>
+    <!-- Howard badge top-left -->
+    <rect x="12" y="10" width="56" height="20" rx="4" fill="rgba(165,28,48,0.7)" stroke="#A51C30" stroke-width="1"/>
+    <text x="40" y="23" text-anchor="middle" fill="white" font-size="9" font-family="DM Sans,sans-serif" font-weight="700">HOWARD UNIV.</text>
+    ${paths}${bs}
+    <!-- Route -->
+    <polyline points="${sx},${sy} ${mx},${sy} ${mx},${dy} ${dx},${dy}" stroke="#A51C30" stroke-width="3" stroke-dasharray="8 4" fill="none" style="animation:dash 1.2s linear infinite"/>
+    <!-- You -->
+    <circle cx="${sx}" cy="${sy}" r="14" fill="rgba(59,130,246,0.15)"/>
+    <circle cx="${sx}" cy="${sy}" r="7" fill="#3b82f6" stroke="white" stroke-width="2"/>
+    <text x="${sx}" y="${sy-16}" text-anchor="middle" fill="#93c5fd" font-size="10" font-family="DM Sans">You</text>
+    <!-- Dest -->
+    <circle cx="${dx}" cy="${dy}" r="12" fill="#A51C30" stroke="white" stroke-width="2"/>
+    <text x="${dx}" y="${dy+4}" text-anchor="middle" font-size="13">📍</text>
+    <text x="${dx}" y="${dy+24}" text-anchor="middle" fill="#ffd0d5" font-size="9" font-family="DM Sans" font-weight="700">${r.building.split(' ')[0]}</text>
+    <style>@keyframes dash{to{stroke-dashoffset:-24}}</style>
+  </svg>`;
+}
+
+// VOLUNTEER MAP
+function drawVolMap(){
+  const c=document.getElementById('volMapPreview'); if(!c) return;
+  const W=c.clientWidth||700,H=c.clientHeight||210;
+  const sc=(v,max)=>(v/100)*(max-40)+20;
+  const orgs=[
+    {name:"Thurgood Marshall",x:22,y:38,m:true},{name:"Martha's Table",x:62,y:22,m:false},
+    {name:"Year Up DC",x:76,y:62,m:true},{name:"DC Greens",x:40,y:68,m:false},
+    {name:"Howard Impact",x:50,y:48,m:true},{name:"City Year DC",x:14,y:72,m:false},
+  ];
+  const hx=sc(50,W),hy=sc(48,H);
+  const lines=orgs.map(o=>`<line x1="${hx}" y1="${hy}" x2="${sc(o.x,W)}" y2="${sc(o.y,H)}" stroke="${o.m?'rgba(34,197,94,0.22)':'rgba(165,28,48,0.12)'}" stroke-width="1" stroke-dasharray="4 4"/>`).join('');
+  const pins=orgs.map(o=>{const px=sc(o.x,W),py=sc(o.y,H);return `<circle cx="${px}" cy="${py}" r="${o.m?10:7}" fill="${o.m?'rgba(34,197,94,0.25)':'rgba(0,33,71,0.7)'}" stroke="${o.m?'#22c55e':'#A51C30'}" stroke-width="${o.m?2:1}"/>
+    <text x="${px}" y="${py+4}" text-anchor="middle" font-size="${o.m?12:10}">${o.m?'🤲':'📌'}</text>
+    <text x="${px}" y="${py+20}" text-anchor="middle" fill="${o.m?'#86efac':'#7a9fcc'}" font-size="8" font-family="DM Sans">${o.name.split(' ')[0]}</text>`;}).join('');
+  c.innerHTML=`<svg width="100%" height="100%" style="position:absolute;top:0;left:0;background:#001020;">
+    <defs><pattern id="vd" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.7" fill="rgba(255,255,255,0.035)"/></pattern></defs>
+    <rect width="100%" height="100%" fill="url(#vd)"/>
+    ${lines}
+    <rect x="${hx-20}" y="${hy-11}" width="40" height="22" rx="5" fill="rgba(165,28,48,0.65)" stroke="#A51C30" stroke-width="1.5"/>
+    <text x="${hx}" y="${hy+4}" text-anchor="middle" fill="white" font-size="9" font-family="DM Sans" font-weight="700">HOWARD</text>
+    ${pins}
+    <text x="10" y="${H-8}" fill="rgba(255,255,255,0.3)" font-size="8" font-family="DM Sans">🟢 Matches your interests   📌 Other nearby orgs</text>
+  </svg>`;
+}
+
+// VOLUNTEER ORGS
+const volunteerOrgs = [
+  {name:"Thurgood Marshall Academy",dist:"0.4 mi",tags:["Education","Youth","Mentorship"],desc:"Tutoring and mentorship for K-12 students across D.C. Work directly with students from underserved communities.",spots:8,match:97,recommended:true},
+  {name:"Howard Impact",dist:"On Campus",tags:["Social Justice","Education","Community"],desc:"Howard's official student volunteer organization. Join campaigns, events, and community outreach programs.",spots:20,match:94,recommended:true},
+  {name:"Year Up DC",dist:"1.1 mi",tags:["Youth","Tech Access","Mentorship"],desc:"Help young adults gain professional and tech skills. Serve as a mock interviewer, coach, or facilitator.",spots:5,match:88,recommended:true},
+  {name:"City Year DC",dist:"1.5 mi",tags:["Education","Youth","Social Justice"],desc:"AmeriCorps program placing tutors and mentors in high-need schools across Washington D.C.",spots:3,match:82,recommended:true},
+  {name:"Martha's Table",dist:"1.8 mi",tags:["Food Security","Youth","Health"],desc:"Serve meals and support early childhood education in D.C. Weekend and weekday shifts available.",spots:15,match:46,recommended:false},
+  {name:"DC Greens",dist:"2.2 mi",tags:["Environment","Food Security","Health"],desc:"Promote food justice and healthy environments across D.C. schools through garden and education programs.",spots:12,match:38,recommended:false},
+];
+
+function renderVolOrgs(list){
+  const el=document.getElementById('volOrgs'); if(!el) return;
+  el.innerHTML=list.map(o=>`<div class="vol-card${o.recommended?' recommended':''}">
+    <div class="vol-card-top"><div><div class="vol-name">${o.name}</div><div class="vol-dist">📍 ${o.dist} from Howard</div></div>${o.recommended?'<span class="rec-badge">✨ Match</span>':''}</div>
+    <div class="vol-tags">${o.tags.map(t=>`<span class="vol-tag">${t}</span>`).join('')}</div>
+    <div class="vol-desc">${o.desc}</div>
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:0.74rem;margin-bottom:3px"><span style="color:var(--muted)">Interest match</span><span style="color:${o.match>=75?'var(--accent)':'var(--muted)'};font-weight:600">${o.match}%</span></div>
+      <div class="match-bar"><div class="match-fill" style="width:${o.match}%"></div></div>
+    </div>
+    <div class="vol-footer"><span class="vol-spots">${o.spots} spots open</span>
+      <div style="display:flex;gap:6px">
+        <button class="vol-btn secondary" onclick="alert('📍 Directions to ${o.name} saved to your map!')">Directions</button>
+        <button class="vol-btn" onclick="signUp('${o.name}')">Sign Up</button>
+      </div>
+    </div>
+  </div>`).join('');
+}
+
+function signUp(n){alert(`✅ Signed up with ${n}!\n\nDirections saved to your map. Check in via CampusWay when you arrive to auto-log your volunteer hours.`);}
+function toggleInterest(el){el.classList.toggle('active');refreshRecs();}
+function refreshRecs(){
+  const active=Array.from(document.querySelectorAll('.int-tag.active')).map(e=>e.textContent);
+  const scored=volunteerOrgs.map(o=>{const ov=o.tags.filter(t=>active.includes(t)).length;return {...o,match:Math.min(99,Math.round(ov>0?(ov/o.tags.length)*100+Math.random()*8:Math.random()*35)),recommended:ov>0};}).sort((a,b)=>b.match-a.match);
+  renderVolOrgs(scored);
+  const matchC=scored.filter(o=>o.recommended).length;
+  const mc=document.getElementById('matchCount'); if(mc) mc.textContent=`${matchC} match your interests`;
+}
+function sortOrgs(by){
+  let s=[...volunteerOrgs];
+  if(by==='distance') s.sort((a,b)=>parseFloat(a.dist||99)-parseFloat(b.dist||99));
+  else if(by==='spots') s.sort((a,b)=>b.spots-a.spots);
+  else s.sort((a,b)=>b.match-a.match);
+  renderVolOrgs(s);
+}
+
+// SCREENS
+function showScreen(name,btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='map'){renderRooms();setTimeout(()=>drawCampusMap(selectedRoom||0),80);}
+  if(name==='volunteer'){renderVolOrgs(volunteerOrgs.sort((a,b)=>b.match-a.match));setTimeout(drawVolMap,80);}
+}
+
+// MISC
+function toggleChip(el){document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
+function openReport(){document.getElementById('reportModal').classList.add('open');}
+function closeReport(){document.getElementById('reportModal').classList.remove('open');}
+function selectReport(el){document.querySelectorAll('.report-opt').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');}
+function submitReport(){closeReport();alert('✅ Report submitted! Routing updated if this affects navigation paths.');}
+function toggleEmergency(){document.getElementById('emergencyBar').classList.toggle('show');}
+function startNav(){if(selectedRoom===null){alert('Please select a room first.');return;}speak();}
+function speak(){
+  if(selectedRoom===null){alert('Please select a room first.');return;}
+  const r=rooms[selectedRoom];
+  if('speechSynthesis' in window){window.speechSynthesis.cancel();window.speechSynthesis.speak(new SpeechSynthesisUtterance(`Starting navigation to ${r.name}. Head straight down the main hallway, then turn left at the second corridor. Your destination is on ${r.floor}.`));}
+  else{alert(`🎙️ Directions to: ${r.name}\n\nHead straight, turn left at second corridor. Destination: ${r.floor}.`);}
+}
+
+// CALENDAR
+function buildCalendar(){
+  const g=document.getElementById('calGrid'); if(!g) return;
+  const booked=[5,12,14,21,26];
+  let h=['Su','Mo','Tu','We','Th','Fr','Sa'].map(d=>`<div class="cal-day-label">${d}</div>`).join('');
+  for(let i=1;i<=28;i++){const cls=i===21?'cal-day today selected':booked.includes(i)?'cal-day has-booking':'cal-day';h+=`<div class="${cls}" onclick="selectCalDay(${i},this)">${i}</div>`;}
+  g.innerHTML=h;
+}
+function selectCalDay(d,el){document.querySelectorAll('.cal-day').forEach(c=>c.classList.remove('selected','today'));el.classList.add('selected');document.getElementById('selectedDate').textContent=`Feb ${d}`;buildSlots();}
+function buildSlots(){
+  const taken=['9:00 AM','10:00 AM','2:00 PM'];
+  const slots=['8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM','7:00 PM'];
+  const el=document.getElementById('slotsGrid'); if(!el) return;
+  el.innerHTML=slots.map(s=>`<div class="slot${taken.includes(s)?' taken':''}" onclick="if(!this.classList.contains('taken')){document.querySelectorAll('.slot').forEach(x=>x.classList.remove('picked'));this.classList.add('picked');}">${s}</div>`).join('');
+}
+
+// INIT
+buildCalendar(); buildSlots(); renderRooms();
+renderVolOrgs(volunteerOrgs.sort((a,b)=>b.match-a.match));
+window.addEventListener('resize',()=>{
+  if(selectedRoom!==null&&document.getElementById('screen-map').classList.contains('active')) drawCampusMap(selectedRoom);
+  if(document.getElementById('screen-volunteer').classList.contains('active')) drawVolMap();
+});
+</script>
+</body>
+</html>
