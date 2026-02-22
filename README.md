@@ -2,6 +2,7 @@ Overview
 https://youtu.be/fEsKG4xp3ws
 https://devpost.com/software/mark-it-s9vwza 
 https://www.canva.com/design/DAHCAosi0do/RAil4LXgot9YTzKlVpWEIA/edit?utm_content=DAHCAosi0do&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
+https://claude.ai/public/artifacts/6c90423c-b670-4761-a145-8441cc5952a4
 
 
 Make/find use cases 
