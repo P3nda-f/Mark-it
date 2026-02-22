@@ -206,6 +206,30 @@
   @keyframes pulse-bar { 0%,100%{opacity:1}50%{opacity:.85} }
   @keyframes dash { to { stroke-dashoffset: -24; } }
 
+  /* TOGGLE DARK MODE */
+  .dark-toggle {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 13px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all 0.2s;
+}
+.dark-toggle:hover { color: var(--text); border-color: var(--text); }
+
+body.dark {
+  --bg: #0a0f0c;
+  --surface: #11121a;
+  --surface2: rgb(13, 8, 34);
+  --border: #120c2d;
+  --text: #e8f5ec;
+  --muted: #6b6e8a;
+}
+
   /* LOGIN PAGE */
   #login-page { display: none; position: fixed; inset: 0; background: #ffffff; z-index: 300; align-items: center; justify-content: center; flex-direction: column; }
   #login-page.open { display: flex; }
@@ -286,6 +310,7 @@
     <button class="nav-tab" onclick="showScreen('admin',this)">⚙️ Admin</button>
   </div>
   <div class="nav-right">
+    <button class="dark-toggle" id="darkToggle" onclick="toggleDark()">🌙 Toggle Dark Mode</button>
     <button class="login-btn" onclick="showLoginPage()">Sign up / Log in</button>
     <div class="emg-btn" onclick="showReportPage()" title="Report an issue">🚨</div>
   </div>
@@ -294,16 +319,11 @@
 <!-- OVERVIEW -->
 <div class="screen active" id="screen-overview">
   <div class="hero">
-    <div class="hero-badge">PROTOTYPE · HOWARD UNIVERSITY · D.C.</div>
-    <h1>Navigate your campus<br><span>without the stress.</span></h1>
+    <div></div>
+    <h1>Mark it. Map it. Make it.<br><span></span></h1>
     <p>Mark-it gives every student, employee, and guest precise indoor directions — with voice guidance, safety alerts, room booking, and volunteer opportunities.</p>
   </div>
-  <div class="stats-row">
-    <div class="stat-card"><div class="stat-num">200+</div><div class="stat-label">Buildings Mapped</div></div>
-    <div class="stat-card"><div class="stat-num">4,500+</div><div class="stat-label">Rooms Indexed</div></div>
-    <div class="stat-card"><div class="stat-num">10K+</div><div class="stat-label">Daily Users</div></div>
-    <div class="stat-card"><div class="stat-num">60+</div><div class="stat-label">Volunteer Orgs</div></div>
-  </div>
+  
   <div class="cards-grid">
     <div class="card accent-card"><div class="card-icon">🎙️</div><h3>AI Voice Guidance</h3><p>Turn-by-turn voice directions to any room. Fully accessible for users with visual impairments.</p></div>
     <div class="card"><div class="card-icon">🔐</div><h3>Tiered Access</h3><p>Admins set permission tiers — deans see everything, interns see authorized areas. MFA login via school ID.</p></div>
@@ -318,12 +338,12 @@
 <div class="screen" id="screen-about">
   <div style="max-width:740px;margin:0 auto">
     <div class="section-label">Truth & Service · Veritas et Utilitas</div>
-    <h2 style="font-family:'Inter',sans-serif;font-size:2rem;font-weight:800;line-height:1.2">How Mark-it serves Howard's mission</h2>
-    <p style="color:var(--muted);margin-top:12px;line-height:1.7">Howard University's motto — Truth and Service — is the philosophical foundation of Mark-it. Built not just as navigation, but as equity infrastructure for campuses and institutions.</p>
+    <h2 style="font-family:'Inter',sans-serif;font-size:2rem;font-weight:800;line-height:1.2">Mark-it's Mission </h2>
+    <p style="color:var(--muted);margin-top:12px;line-height:1.7"> is to enhance community, equity, and  accessability through ever-improving map software. Make navigation more specific so it can expedite the process of getting from point A to point B for all. No matter your ability or knowledge of the area, be able to arrive at your desired location.</p>
     <div class="pillar-grid">
       <div class="pillar gold-border"><div class="pillar-icon">🔍</div><h4>Transparency</h4><p>No secret tracking. Users see exactly what data is collected. Admin views are aggregate-only with clear consent flows.</p></div>
       <div class="pillar"><div class="pillar-icon">⚖️</div><h4>Equity</h4><p>Voice navigation ensures students with disabilities have equal access. Free tier for students means cost is never a barrier.</p></div>
-      <div class="pillar"><div class="pillar-icon">🌐</div><h4>Access</h4><p>Works on any device. First-gen students and visitors get the same experience from day one.</p></div>
+    <!-- <div class="pillar"><div class="pillar-icon">🌐</div><h4>Access</h4><p>Works on any device. First-gen students and visitors get the same experience from day one.</p></div>-->
       <div class="pillar"><div class="pillar-icon">🤝</div><h4>Community</h4><p>Hazard reports, emergency routing, cleaning dispatch, and volunteer matching all reduce harm and strengthen community.</p></div>
     </div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;margin-top:22px">
@@ -809,6 +829,13 @@ window.addEventListener('resize',()=>{
   if(selectedRoom!==null&&document.getElementById('screen-map').classList.contains('active')) drawCampusMap(selectedRoom);
   if(document.getElementById('screen-volunteer').classList.contains('active')) drawVolMap();
 });
+
+//TOGGLE DARK MODE
+function toggleDark() {
+  const isDark = document.body.classList.toggle('dark');
+  const btn = document.getElementById('darkToggle');
+  btn.textContent = isDark ? '☀️ Light' : '🌙 Dark';
+}
 </script>
 </body>
 </html>
